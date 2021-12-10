@@ -1,5 +1,7 @@
 "use strict";
 
+const $arenas = document.querySelector(".arenas");
+
 const scorpion = {
   name: "SCORPION",
   hp: 50,
@@ -33,7 +35,7 @@ function createPlayer(className, player) {
 
   const $playerName = document.createElement("div");
   $playerName.classList.add("name");
-  $playerName.innerHTML = player.name;
+  $playerName.innerText = player.name;
 
   const $character = document.createElement("div");
   $character.classList.add("character");
@@ -41,7 +43,6 @@ function createPlayer(className, player) {
   const $characterImage = document.createElement("img");
   $characterImage.src = player.img;
 
-  const $arenas = document.querySelector(".arenas");
   $arenas.appendChild($player);
   $player.appendChild($progressbar);
   $player.appendChild($character);
