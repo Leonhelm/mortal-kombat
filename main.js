@@ -8,10 +8,10 @@ const scorpion = {
   name: "SCORPION",
   hp: 100,
   img: "http://reactmarathon-api.herokuapp.com/assets/scorpion.gif",
-  weapon: [],
-  attack: function () {
-    console.log(`${this.name} Fight...`);
-  },
+  changeHP,
+  elHP,
+  renderHP,
+  renderWins,
 };
 
 const subZero = {
@@ -19,20 +19,85 @@ const subZero = {
   name: "SUB-ZERO",
   hp: 100,
   img: "http://reactmarathon-api.herokuapp.com/assets/subzero.gif",
-  weapon: [],
-  attack: function () {
-    console.log(`${this.name} Fight...`);
-  },
+  changeHP,
+  elHP,
+  renderHP,
+  renderWins,
 };
 
-function createElement(tagName, className) {
-  const $element = document.createElement(tagName);
+function changeHP(damage) {
+  const hpAfter = this.hp - damage;
+  this.hp = hpAfter < 0 ? 0 : hpAfter;
+}
 
-  if (className) {
-    $element.classList.add(className);
+function elHP() {
+  return document.querySelector(`.player${this.player} .life`);
+}
+
+function renderHP() {
+  this.elHP().style.width = `${this.hp}%`;
+}
+
+function renderWins() {
+  return createWinsTitle(`${this.name} wins`);
+}
+
+$randomButton.addEventListener("click", function () {
+  const players = [scorpion, subZero];
+
+  const playersLose = players.map((player) => {
+    player.changeHP(getRandom(20));
+    player.renderHP();
+    return hasPlayerLose(player);
+  });
+
+  if (playersLose.some(Boolean)) {
+    if (playersLose.every(Boolean)) {
+      $arenas.appendChild(roundDraw());
+    } else if (playersLose[0]) {
+      $arenas.appendChild(players[1].renderWins());
+    } else if (playersLose[1]) {
+      $arenas.appendChild(players[0].renderWins());
+    }
+
+    disableRandomButton();
+    $arenas.appendChild(createReloadButton());
   }
+});
 
-  return $element;
+$arenas.appendChild(createPlayer(scorpion));
+$arenas.appendChild(createPlayer(subZero));
+
+function hasPlayerLose(player) {
+  return player.hp <= 0;
+}
+
+function disableRandomButton() {
+  $randomButton.disabled = true;
+}
+
+function createReloadButton() {
+  const $reloadWrap = createElement("div", "reloadWrap");
+  const $reloadButton = createElement("button", "button");
+
+  $reloadButton.innerText = "Restart";
+  $reloadWrap.appendChild($reloadButton);
+
+  $reloadButton.addEventListener("click", () => {
+    window.location.reload();
+  });
+
+  return $reloadWrap;
+}
+
+function roundDraw() {
+  return createWinsTitle(`Round draw`);
+}
+
+function createWinsTitle(title) {
+  const $winsTitle = createElement("div", "winsTitle");
+  $winsTitle.innerText = title;
+  return $winsTitle;
 }
 
 function createPlayer(player) {
@@ -56,55 +121,16 @@ function createPlayer(player) {
   return $player;
 }
 
-function createWinsTitle(title) {
-  const $winsTitle = createElement("div", "winsTitle");
-  $winsTitle.innerText = title;
+function createElement(tagName, className) {
+  const $element = document.createElement(tagName);
 
-  return $winsTitle;
-}
-
-function playerWins(name) {
-  return createWinsTitle(`${name} wins`);
-}
-
-function roundDraw() {
-  return createWinsTitle(`Round draw`);
-}
-
-function changeHP(player) {
-  const $playerLife = document.querySelector(`.player${player.player} .life`);
-  const damage = Math.ceil(Math.random() * 20);
-  const hpAfter = player.hp - damage;
-
-  player.hp = hpAfter < 0 ? 0 : hpAfter;
-  $playerLife.style.width = `${player.hp}%`;
-}
-// round draw
-function checkWinner(player1, player2) {
-  const player1Lose = player1.hp <= 0;
-  const player2Lose = player2.hp <= 0;
-
-  if (player1Lose && player2Lose) {
-    $arenas.appendChild(roundDraw());
-  } else if (player1Lose) {
-    $arenas.appendChild(playerWins(player2.name));
-  } else if (player2Lose) {
-    $arenas.appendChild(playerWins(player1.name));
+  if (className) {
+    $element.classList.add(className);
   }
+
+  return $element;
 }
 
-function disableRandomButton(player1, player2) {
-  if (player1.hp <= 0 || player2.hp <= 0) {
-    $randomButton.disabled = true;
-  }
+function getRandom(maxValue) {
+  return Math.ceil(Math.random() * maxValue);
 }
-
-$randomButton.addEventListener("click", function () {
-  changeHP(scorpion);
-  changeHP(subZero);
-  checkWinner(scorpion, subZero);
-  disableRandomButton(scorpion, subZero);
-});
-
-$arenas.appendChild(createPlayer(scorpion));
-$arenas.appendChild(createPlayer(subZero));
