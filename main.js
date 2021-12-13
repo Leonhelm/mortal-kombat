@@ -72,14 +72,12 @@ function roundDraw() {
 }
 
 function changeHP(player) {
-  if (player.hp > 0) {
-    const $playerLife = document.querySelector(`.player${player.player} .life`);
-    const damage = Math.ceil(Math.random() * 20);
-    const hpAfter = player.hp - damage;
+  const $playerLife = document.querySelector(`.player${player.player} .life`);
+  const damage = Math.ceil(Math.random() * 20);
+  const hpAfter = player.hp - damage;
 
-    player.hp = hpAfter < 0 ? 0 : hpAfter;
-    $playerLife.style.width = `${player.hp}%`;
-  }
+  player.hp = hpAfter < 0 ? 0 : hpAfter;
+  $playerLife.style.width = `${player.hp}%`;
 }
 // round draw
 function checkWinner(player1, player2) {
