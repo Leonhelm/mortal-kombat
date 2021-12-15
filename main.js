@@ -43,21 +43,21 @@ function renderWins() {
 }
 
 $randomButton.addEventListener("click", function () {
-  const players = [scorpion, subZero];
+  scorpion.changeHP(getRandom(20));
+  scorpion.renderHP();
+  const isScorpionLose = hasPlayerLose(scorpion);
 
-  const playersLose = players.map((player) => {
-    player.changeHP(getRandom(20));
-    player.renderHP();
-    return hasPlayerLose(player);
-  });
+  subZero.changeHP(getRandom(20));
+  subZero.renderHP();
+  const isSubZeroLose = hasPlayerLose(subZero);
 
-  if (playersLose.some(Boolean)) {
-    if (playersLose.every(Boolean)) {
+  if (isScorpionLose || isSubZeroLose) {
+    if (isScorpionLose && isSubZeroLose) {
       $arenas.appendChild(roundDraw());
-    } else if (playersLose[0]) {
-      $arenas.appendChild(players[1].renderWins());
-    } else if (playersLose[1]) {
-      $arenas.appendChild(players[0].renderWins());
+    } else if (isScorpionLose) {
+      $arenas.appendChild(subZero.renderWins());
+    } else if (isSubZeroLose) {
+      $arenas.appendChild(scorpion.renderWins());
     }
 
     disableRandomButton();
