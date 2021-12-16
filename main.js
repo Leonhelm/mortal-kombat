@@ -1,7 +1,10 @@
 "use strict";
 
 const $arenas = document.querySelector(".arenas");
-const $randomButton = document.querySelector(".button");
+const $controlForm = document.querySelector("form.control");
+const $controlFormSubmitButton = $controlForm.querySelector(
+  'button[type="submit"]'
+);
 
 const scorpion = {
   player: 1,
@@ -25,6 +28,13 @@ const subZero = {
   renderWins,
 };
 
+const HIT = {
+  head: getRandom(20, 30),
+  body: getRandom(20, 30),
+  foot: getRandom(20, 30),
+};
+const ATTACK = ["head", "body", "foot"];
+
 function changeHP(damage) {
   const hpAfter = this.hp - damage;
   this.hp = hpAfter < 0 ? 0 : hpAfter;
@@ -42,14 +52,25 @@ function renderWins() {
   return createWinsTitle(`${this.name} wins`);
 }
 
-$randomButton.addEventListener("click", function () {
-  scorpion.changeHP(getRandom(20));
-  scorpion.renderHP();
-  const isScorpionLose = hasPlayerLose(scorpion);
+$controlForm.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const $form = e.target;
+  const scorpionAttack = playerAttack($form);
+  const subZeroAttack = enemyAttack();
+  $form.reset();
 
-  subZero.changeHP(getRandom(20));
-  subZero.renderHP();
-  const isSubZeroLose = hasPlayerLose(subZero);
+  if (scorpionAttack.hit !== subZeroAttack.defence) {
+    subZero.changeHP(scorpionAttack.value);
+    subZero.renderHP();
+  }
+
+  if (subZeroAttack.hit !== scorpionAttack.defence) {
+    scorpion.changeHP(subZeroAttack.value);
+    scorpion.renderHP();
+  }
+
+  const isScorpionLose = scorpion.hp <= 0;
+  const isSubZeroLose = subZero.hp <= 0;
 
   if (isScorpionLose || isSubZeroLose) {
     if (isScorpionLose && isSubZeroLose) {
@@ -60,7 +81,7 @@ $randomButton.addEventListener("click", function () {
       $arenas.appendChild(scorpion.renderWins());
     }
 
-    disableRandomButton();
+    disableControlFormSubmitButton();
     $arenas.appendChild(createReloadButton());
   }
 });
@@ -68,12 +89,27 @@ $randomButton.addEventListener("click", function () {
 $arenas.appendChild(createPlayer(scorpion));
 $arenas.appendChild(createPlayer(subZero));
 
-function hasPlayerLose(player) {
-  return player.hp <= 0;
+function playerAttack($form) {
+  const playerAttackResult = {};
+
+  for (const $formItem of $form) {
+    if ($formItem.type === "radio" && $formItem.checked) {
+      playerAttackResult[$formItem.name] = $formItem.value;
+    }
+  }
+
+  playerAttackResult.value = HIT[playerAttackResult.hit];
+  return playerAttackResult;
 }
 
-function disableRandomButton() {
-  $randomButton.disabled = true;
+function enemyAttack() {
+  const hit = ATTACK[getRandom(0, 2)];
+  const defence = ATTACK[getRandom(0, 2)];
+  return {
+    value: HIT[hit],
+    hit,
+    defence,
+  };
 }
 
 function createReloadButton() {
@@ -90,12 +126,16 @@ function createReloadButton() {
   return $reloadWrap;
 }
 
+function disableControlFormSubmitButton() {
+  $controlFormSubmitButton.disabled = true;
+}
+
 function roundDraw() {
   return createWinsTitle(`Round draw`);
 }
 
 function createWinsTitle(title) {
-  const $winsTitle = createElement("div", "winsTitle");
+  const $winsTitle = createElement("div", "loseTitle");
   $winsTitle.innerText = title;
   return $winsTitle;
 }
@@ -131,6 +171,6 @@ function createElement(tagName, className) {
   return $element;
 }
 
-function getRandom(maxValue) {
-  return Math.ceil(Math.random() * maxValue);
+function getRandom(min, max) {
+  return Math.round(Math.random() * (max - min) + min);
 }
