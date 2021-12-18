@@ -102,19 +102,27 @@ $controlForm.addEventListener("submit", function (e) {
   $form.reset();
 
   if (scorpionAttack.hit === subZeroAttack.defence) {
-    generateLogs("defence", scorpion, subZero);
+    generateLogs("defence", { player1: scorpion, player2: subZero });
   } else {
     subZero.changeHP(scorpionAttack.value);
     subZero.renderHP();
-    generateLogs("hit", scorpion, subZero);
+    generateLogs("hit", {
+      player1: scorpion,
+      player2: subZero,
+      attackValue: scorpionAttack.value,
+    });
   }
 
   if (subZeroAttack.hit === scorpionAttack.defence) {
-    generateLogs("defence", subZero, scorpion);
+    generateLogs("defence", { player1: subZero, player2: scorpion });
   } else {
     scorpion.changeHP(subZeroAttack.value);
     scorpion.renderHP();
-    generateLogs("hit", subZero, scorpion);
+    generateLogs("hit", {
+      player1: subZero,
+      player2: scorpion,
+      attackValue: subZeroAttack.value,
+    });
   }
 
   showResult();
@@ -122,16 +130,18 @@ $controlForm.addEventListener("submit", function (e) {
 
 $arenas.appendChild(createPlayer(scorpion));
 $arenas.appendChild(createPlayer(subZero));
-generateLogs("start", subZero, scorpion);
+generateLogs("start", { player1: subZero, player2: scorpion });
 
-function generateLogs(type, player1, player2) {
-  const logText = makeLog(type, player1, player2);
-  const el = `<p>${logText}</p>`;
+function generateLogs(type, context) {
+  const log = makeLog(type, context);
+  const el = `<p>${log}</p>`;
   $chat.insertAdjacentHTML("afterbegin", el);
 }
 
-function makeLog(type, player1, player2) {
+function makeLog(type, context = {}) {
+  const { player1, player2, attackValue } = context;
   const logType = LOGS[type];
+  const time = formatTime(new Date());
   const text = Array.isArray(logType)
     ? logType[getRandom(0, logType.length - 1)]
     : logType;
@@ -139,23 +149,34 @@ function makeLog(type, player1, player2) {
   switch (type) {
     case "start":
       return text
-        .replace("[time]", formatTime(new Date()))
+        .replace("[time]", time)
         .replace("[player1]", player1.name)
         .replace("[player2]", player2.name);
-    case "end":
-      return text
+
+    case "end": {
+      const textReplaced = text
         .replace("[playerWins]", player1.name)
         .replace("[playerLose]", player2.name);
-    case "hit":
-      return text
+      return `${time} - ${textReplaced}`;
+    }
+
+    case "hit": {
+      const textReplaced = text
         .replace("[playerKick]", player1.name)
         .replace("[playerDefence]", player2.name);
-    case "defence":
-      return text
+      return `${time} - ${textReplaced} -${attackValue} [${player2.hp}/100]`;
+    }
+
+    case "defence": {
+      const textReplaced = text
         .replace("[playerKick]", player1.name)
         .replace("[playerDefence]", player2.name);
+      return `${time} - ${textReplaced}`;
+    }
+
     case "draw":
       return text;
+
     default:
       throw new Error('Argument "type" is defined incorrectly');
   }
@@ -171,10 +192,10 @@ function showResult() {
       generateLogs("draw");
     } else if (isScorpionLose) {
       $arenas.appendChild(subZero.renderWins());
-      generateLogs("end", subZero, scorpion);
+      generateLogs("end", { player1: subZero, player2: scorpion });
     } else if (isSubZeroLose) {
       $arenas.appendChild(scorpion.renderWins());
-      generateLogs("end", scorpion, subZero);
+      generateLogs("end", { player1: scorpion, player2: subZero });
     }
 
     disableControlFormSubmitButton();
