@@ -183,8 +183,8 @@ function makeLog(type, context = {}) {
 }
 
 function showResult() {
-  const isScorpionLose = scorpion.hp <= 0;
-  const isSubZeroLose = subZero.hp <= 0;
+  const isScorpionLose = scorpion.hp === 0;
+  const isSubZeroLose = subZero.hp === 0;
 
   if (isScorpionLose || isSubZeroLose) {
     if (isScorpionLose && isSubZeroLose) {
@@ -292,6 +292,7 @@ function getRandom(min, max) {
 function formatTime(date) {
   const hours = `${date.getHours()}`.padStart(2, "0");
   const minutes = `${date.getMinutes()}`.padStart(2, "0");
+  const seconds = `${date.getSeconds()}`.padStart(2, "0");
 
-  return `${hours}:${minutes}`;
+  return `${hours}:${minutes}:${seconds}`;
 }
