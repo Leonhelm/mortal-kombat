@@ -1,4 +1,4 @@
-import makeLog from "../utils/makeLog.js";
+import makeLog from "../../utils/makeLog.js";
 
 const $chat = document.querySelector(".chat");
 

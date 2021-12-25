@@ -1,25 +1,12 @@
-export const HIT = {
-  head: 30,
-  body: 25,
-  foot: 20,
-};
+const API_URL = "https://reactmarathon-api.herokuapp.com/api/mk";
+export const PLAYER_LIST_URL = `${API_URL}/players`;
+export const PLAYER_CHOOSE_URL = `${API_URL}/player/choose`;
+export const PLAYER_FIGHT_URL = `${API_URL}/player/fight`;
+export const PLAYER_AVATAR = `${API_URL}/assets/mk/avatar/:avatarImage`;
 
-export const ATTACK = ["head", "body", "foot"];
-
-export const CHARACTERS = {
-  scorpion: {
-    player: 1,
-    name: "SCORPION",
-    hp: 100,
-    img: "http://reactmarathon-api.herokuapp.com/assets/scorpion.gif",
-  },
-  subZero: {
-    player: 2,
-    name: "SUB-ZERO",
-    hp: 100,
-    img: "http://reactmarathon-api.herokuapp.com/assets/subzero.gif",
-  },
-};
+const BASE_ROUTE = "/mortal-kombat";
+export const HOME_ROUTE = BASE_ROUTE;
+export const ARENA_ROUTE = `${BASE_ROUTE}/arenas`;
 
 export const LOGS = {
   start:
