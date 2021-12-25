@@ -1,4 +1,3 @@
-import { HIT } from "../constants.js";
 import createElement from "../utils/createElement.js";
 
 const $arenas = document.querySelector(".arenas");
@@ -18,7 +17,6 @@ export const playerAttack = () => {
     }
   }
 
-  result.value = HIT[result.hit];
   return result;
 };
 

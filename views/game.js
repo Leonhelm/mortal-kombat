@@ -1,6 +1,4 @@
-import { CHARACTERS } from "../constants.js";
 import { createPlayer } from "../domains/player.js";
-import { enemyAttack } from "../domains/enemy.js";
 import {
   $controlForm,
   playerAttack,
@@ -12,72 +10,83 @@ import {
   changePlayerHp,
 } from "./arenas.js";
 import { generateLogs } from "./chat.js";
+import { choosePlayer, fightPlayer } from "../data/player.js";
 
 export class Game {
-  constructor() {
-    this.scorpion = createPlayer(CHARACTERS.scorpion);
-    this.subZero = createPlayer(CHARACTERS.subZero);
-  }
+  start = async () => {
+    const [player1, player2] = await Promise.all([
+      choosePlayer(),
+      choosePlayer(),
+    ]);
 
-  start = () => {
-    renderPlayer(this.scorpion);
-    renderPlayer(this.subZero);
-    generateLogs("start", { player1: this.subZero, player2: this.scorpion });
+    this.player1 = createPlayer({
+      ...player1,
+      player: 1,
+    });
+    this.player2 = createPlayer({
+      ...player2,
+      player: 2,
+    });
 
-    $controlForm.addEventListener("submit", (e) => {
+    renderPlayer(this.player1);
+    renderPlayer(this.player2);
+    generateLogs("start", { player1: this.player2, player2: this.player1 });
+
+    $controlForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const scorpionAttack = playerAttack();
-      const subZeroAttack = enemyAttack();
+      const attack = playerAttack();
+      const { player1: player1Attack, player2: player2Attack } =
+        await fightPlayer(attack);
+
+      if (player1Attack.hit === player2Attack.defence) {
+        generateLogs("defence", {
+          player1: this.player1,
+          player2: this.player2,
+        });
+      } else {
+        this.player2.changeHP(player1Attack.value);
+        changePlayerHp(this.player2);
+        generateLogs("hit", {
+          player1: this.player1,
+          player2: this.player2,
+          attackValue: player1Attack.value,
+        });
+      }
+
+      if (player2Attack.hit === player1Attack.defence) {
+        generateLogs("defence", {
+          player1: this.player2,
+          player2: this.player1,
+        });
+      } else {
+        this.player1.changeHP(player2Attack.value);
+        changePlayerHp(this.player1);
+        generateLogs("hit", {
+          player1: this.player2,
+          player2: this.player1,
+          attackValue: player2Attack.value,
+        });
+      }
+
       $controlForm.reset();
-
-      if (scorpionAttack.hit === subZeroAttack.defence) {
-        generateLogs("defence", {
-          player1: this.scorpion,
-          player2: this.subZero,
-        });
-      } else {
-        this.subZero.changeHP(scorpionAttack.value);
-        changePlayerHp(this.subZero);
-        generateLogs("hit", {
-          player1: this.scorpion,
-          player2: this.subZero,
-          attackValue: scorpionAttack.value,
-        });
-      }
-
-      if (subZeroAttack.hit === scorpionAttack.defence) {
-        generateLogs("defence", {
-          player1: this.subZero,
-          player2: this.scorpion,
-        });
-      } else {
-        this.scorpion.changeHP(subZeroAttack.value);
-        changePlayerHp(this.scorpion);
-        generateLogs("hit", {
-          player1: this.subZero,
-          player2: this.scorpion,
-          attackValue: subZeroAttack.value,
-        });
-      }
-
       this.#showResult();
     });
   };
 
   #showResult = () => {
-    const isScorpionLose = this.scorpion.hasLose();
-    const isSubZeroLose = this.subZero.hasLose();
+    const isScorpionLose = this.player1.hasLose();
+    const isSubZeroLose = this.player2.hasLose();
 
     if (isScorpionLose || isSubZeroLose) {
       if (isScorpionLose && isSubZeroLose) {
         renderRoundDraw();
         generateLogs("draw");
       } else if (isScorpionLose) {
-        renderWins(this.subZero.name);
-        generateLogs("end", { player1: this.subZero, player2: this.scorpion });
+        renderWins(this.player2.name);
+        generateLogs("end", { player1: this.player2, player2: this.player1 });
       } else if (isSubZeroLose) {
-        renderWins(this.scorpion.name);
-        generateLogs("end", { player1: this.scorpion, player2: this.subZero });
+        renderWins(this.player1.name);
+        generateLogs("end", { player1: this.player1, player2: this.player2 });
       }
 
       disableControlFormSubmitButton();
