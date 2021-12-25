@@ -1,3 +1,4 @@
+import { HOME_ROUTE } from "../../constants.js";
 import { createPlayer } from "../domains/player.js";
 import {
   $controlForm,
@@ -10,12 +11,16 @@ import {
   changePlayerHp,
 } from "./arenas.js";
 import { generateLogs } from "./chat.js";
-import { choosePlayer, fightPlayer } from "../data/player.js";
+import {
+  choosePlayer,
+  fightPlayer,
+  getPlayerFromLocalStorage,
+} from "../../data/player.js";
 
 export class Game {
   start = async () => {
     const [player1, player2] = await Promise.all([
-      choosePlayer(),
+      (async () => getPlayerFromLocalStorage("player1") || choosePlayer())(),
       choosePlayer(),
     ]);
 
@@ -90,7 +95,9 @@ export class Game {
       }
 
       disableControlFormSubmitButton();
-      renderReloadButton();
+      renderReloadButton(() => {
+        window.location.pathname = HOME_ROUTE;
+      });
     }
   };
 }

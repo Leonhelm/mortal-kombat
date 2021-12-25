@@ -1,8 +1,12 @@
 const API_URL = "https://reactmarathon-api.herokuapp.com/api/mk";
-
 export const PLAYER_LIST_URL = `${API_URL}/players`;
 export const PLAYER_CHOOSE_URL = `${API_URL}/player/choose`;
 export const PLAYER_FIGHT_URL = `${API_URL}/player/fight`;
+export const PLAYER_AVATAR = `${API_URL}/assets/mk/avatar/:avatarImage`;
+
+const BASE_ROUTE = "/mortal-kombat";
+export const HOME_ROUTE = BASE_ROUTE;
+export const ARENA_ROUTE = `${BASE_ROUTE}/arenas`;
 
 export const LOGS = {
   start:

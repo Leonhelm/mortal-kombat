@@ -1,4 +1,4 @@
-import createElement from "../utils/createElement.js";
+import createElement from "../../utils/createElement.js";
 
 const $arenas = document.querySelector(".arenas");
 
@@ -41,15 +41,15 @@ const createPlayer = (player) => {
   return $player;
 };
 
-export const renderReloadButton = () => {
+export const renderReloadButton = (clickHandler) => {
   const $reloadWrap = createElement("div", "reloadWrap");
   const $reloadButton = createElement("button", "button");
 
   $reloadButton.innerText = "Restart";
   $reloadWrap.appendChild($reloadButton);
 
-  $reloadButton.addEventListener("click", () => {
-    window.location.reload();
+  $reloadButton.addEventListener("click", (e) => {
+    clickHandler(e);
   });
 
   $arenas.appendChild($reloadWrap);
